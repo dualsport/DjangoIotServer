@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2048
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "IOT_Server", "IOT_Server\IOT_Server.pyproj", "{79FE9376-0D6D-4340-A852-71892202B40F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{79FE9376-0D6D-4340-A852-71892202B40F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79FE9376-0D6D-4340-A852-71892202B40F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79FE9376-0D6D-4340-A852-71892202B40F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79FE9376-0D6D-4340-A852-71892202B40F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2FAD9D2A-06F3-457A-9A1A-05604DACA518}
+	EndGlobalSection
+EndGlobal
