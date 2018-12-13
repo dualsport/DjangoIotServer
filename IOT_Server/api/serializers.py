@@ -55,7 +55,7 @@ class TagDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IotData
-        fields = ('tag','value','value_text','value_int','value_dec','value_bool')
+        fields = ('tag','value','timestamp','value_text','value_int','value_dec','value_bool')
 
     def to_internal_value(self, data):
         values = super().to_internal_value(data)
