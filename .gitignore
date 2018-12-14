@@ -4,6 +4,7 @@
 #Specific project files
 settings.py
 foobar.py
+notes.txt
 
 # Environments
 .env
