@@ -6,7 +6,7 @@ class DeviceAdmin(admin.ModelAdmin):
 admin.site.register(Devices, DeviceAdmin)
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('tag_id', 'name')
+    list_display = ('tag_id', 'name', 'device_concat')
 admin.site.register(Tags, TagAdmin)
 
 class ValueTypeAdmin(admin.ModelAdmin):

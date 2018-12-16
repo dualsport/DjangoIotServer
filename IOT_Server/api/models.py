@@ -44,9 +44,14 @@ class Tags(models.Model):
     def __str__(self):
         return self.name
 
+    def device_concat(self):
+        return self.device.device_id + ' / ' + self.device.name
+    device_concat.short_description = 'Belongs to Device'
+
     class Meta:
         verbose_name = 'Tag'
         verbose_name_plural = 'Tags'
+        ordering = ['device', 'tag_id']
 
 
 class IotData(models.Model):
