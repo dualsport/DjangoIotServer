@@ -11,6 +11,10 @@ class Devices(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Device'
+        verbose_name_plural = 'Devices'
+
 class ValueTypes(models.Model):
     TYPE_CHOICES = (
         ('string', 'Alphanumeric text'),
@@ -25,6 +29,11 @@ class ValueTypes(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'ValueType'
+        verbose_name_plural = 'ValueTypes'
+
+
 class Tags(models.Model):
     tag_id = models.CharField(max_length=25, primary_key=True, validators=[MinLengthValidator(3)])
     device = models.ForeignKey(Devices, on_delete=models.PROTECT)
@@ -34,6 +43,11 @@ class Tags(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = 'Tag'
+        verbose_name_plural = 'Tags'
+
 
 class IotData(models.Model):
     tag = models.ForeignKey(Tags, on_delete=models.PROTECT)
