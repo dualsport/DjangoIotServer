@@ -7,7 +7,8 @@ class Devices(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True)
     type = models.CharField(max_length=50, blank=True)
-
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
     def __str__(self):
         return self.name
 
@@ -25,6 +26,8 @@ class ValueTypes(models.Model):
     value_type_id = models.CharField(max_length=8, primary_key=True)
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=6, choices=TYPE_CHOICES)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
@@ -40,6 +43,8 @@ class Tags(models.Model):
     value_type = models.ForeignKey(ValueTypes, on_delete=models.PROTECT)
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
