@@ -2,6 +2,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import serializers
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 from api.models import Devices, Tags, ValueTypes, IotData
 from api.serializers import DeviceSerializer, TagSerializer, ValTypeSerializer
 from api.serializers import IotTextSerializer, IotIntegerSerializer, IotDecimalSerializer, IotBooleanSerializer, TagDataSerializer
@@ -28,36 +30,58 @@ from django.utils import dateparse
 #        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class DeviceList(generics.ListCreateAPIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
     queryset = Devices.objects.all()
     serializer_class = DeviceSerializer
 
 
 class DeviceDetail(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
     queryset = Devices.objects.all()
     serializer_class = DeviceSerializer
 
 
 class TagList(generics.ListCreateAPIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
     queryset = Tags.objects.all()
     serializer_class = TagSerializer
 
 
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
     queryset = Tags.objects.all()
     serializer_class = TagSerializer
 
 
 class ValTypeList(generics.ListCreateAPIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
     queryset = ValueTypes.objects.all()
     serializer_class = ValTypeSerializer
 
 
 class ValTypeDetail(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
     queryset = ValueTypes.objects.all()
     serializer_class = ValTypeSerializer
 
 
 class TagData(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+
     def post(self, request, format=None):
         serializer = TagDataSerializer(data=request.data)
         
@@ -70,17 +94,20 @@ class TagData(APIView):
 
 class TagDataList(generics.ListAPIView):
     serializer_class = TagDataSerializer
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
 
     def validate_date(self, dt):
         valid_dt_fmt = {'Valid date format is': '2010-06-30T15:30:00'}
         try:
-            begin = dateparse.parse_datetime(dt)
+            valid_dt = dateparse.parse_datetime(dt)
         except ValueError as e:
             raise serializers.ValidationError({'Invalid date given': str(e)})
-        if not begin:
+        if not valid_dt:
             raise serializers.ValidationError({'Invalid value parameter': f'{dt}',
                                                **valid_dt_fmt})
-        return dt
+        return valid_dt
 
 
     def get_queryset(self):
