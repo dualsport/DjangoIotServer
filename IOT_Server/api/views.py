@@ -142,3 +142,5 @@ class TagDataList(generics.ListAPIView):
         queryset = queryset.order_by('timestamp')[:max]
 
         return queryset
+
+

@@ -53,7 +53,7 @@
     <Compile Include="api\serializers.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="api\foobar.py">
+    <Compile Include="api\get_token.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="api\tests.py" />
