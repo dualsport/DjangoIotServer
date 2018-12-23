@@ -43,6 +43,7 @@
   <ItemGroup>
     <Folder Include="api\" />
     <Folder Include="api\migrations\" />
+    <Folder Include="api\tests\" />
     <Folder Include="IOT_Server\" />
   </ItemGroup>
   <ItemGroup>
@@ -50,13 +51,15 @@
     <Compile Include="api\apps.py" />
     <Compile Include="api\migrations\__init__.py" />
     <Compile Include="api\models.py" />
+    <Compile Include="api\tests\API_calls.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="api\serializers.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="api\get_token.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="api\tests.py" />
     <Compile Include="api\urls.py">
       <SubType>Code</SubType>
     </Compile>

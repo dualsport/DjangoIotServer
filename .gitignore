@@ -3,8 +3,8 @@
 
 #Specific project files
 settings.py
-foobar.py
 notes.txt
+tests/
 
 # Environments
 .env

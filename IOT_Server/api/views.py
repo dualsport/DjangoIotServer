@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from api.models import Devices, Tags, ValueTypes, IotData
 from api.serializers import DeviceSerializer, TagSerializer, ValTypeSerializer
@@ -78,11 +79,11 @@ class ValTypeDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class TagData(APIView):
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-
     def post(self, request, format=None):
+        print(request.data)
         serializer = TagDataSerializer(data=request.data)
         
         
@@ -94,7 +95,7 @@ class TagData(APIView):
 
 class TagDataList(generics.ListAPIView):
     serializer_class = TagDataSerializer
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
 
