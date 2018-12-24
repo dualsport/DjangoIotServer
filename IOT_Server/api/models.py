@@ -66,3 +66,17 @@ class IotData(models.Model):
     value_dec = models.DecimalField(max_digits=8, decimal_places=3, blank=True, null = True)
     value_text = models.CharField(max_length=100, blank=True, null = True)
     value_bool = models.BooleanField(blank=True, null = True)
+
+    @property
+    def value(self):
+        tag_type = self.tag.value_type.type
+        if tag_type == 'bool':
+            return self.value_bool
+        elif tag_type == 'int':
+            return self.value_int
+        elif tag_type == 'dec':
+            return self.value_dec
+        elif tag_type == 'string':
+            return self.value_text
+        else:
+            return 'Unknown value type for tag.'

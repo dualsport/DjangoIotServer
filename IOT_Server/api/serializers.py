@@ -51,11 +51,11 @@ class IotBooleanSerializer(serializers.ModelSerializer):
 
 
 class TagDataSerializer(serializers.ModelSerializer):
-    value = serializers.CharField(max_length=100, write_only=True)
+    value = serializers.CharField(max_length=100)
 
     class Meta:
         model = IotData
-        fields = ('tag','value','timestamp','value_text','value_int','value_dec','value_bool')
+        fields = ('tag','value','timestamp')
 
     def to_internal_value(self, data):
         values = super().to_internal_value(data)
