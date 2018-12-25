@@ -13,29 +13,15 @@ from rest_framework.views import APIView
 from django.utils import dateparse
 
 
-#@api_view(['GET', 'POST'])
-#def device_list(request):
-#    """
-#    List all devices or create a new device
-#    """
-#    if request.method == 'GET':
-#        device_list = Devices.objects.all()
-#        serializer = DeviceSerializer(device_list, many=True)
-#        return Response(serializer.data)
-
-#    elif request.method == 'POST':
-#        serializer = DeviceSerializer(data=request.data)
-#        if serializer.is_valid():
-#            serializer.save()
-#            return Response(serializer.data, status=status.HTTP_201_CREATED)
-#        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class DeviceList(generics.ListCreateAPIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     queryset = Devices.objects.all()
     serializer_class = DeviceSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 class DeviceDetail(generics.RetrieveUpdateDestroyAPIView):

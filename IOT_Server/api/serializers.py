@@ -4,9 +4,10 @@ from distutils.util import strtobool
 
 
 class DeviceSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
     class Meta:
         model = Devices
-        fields = ('device_id', 'name', 'description', 'type')
+        fields = ('device_id', 'owner', 'name', 'description', 'type')
 
 
 class TagSerializer(serializers.ModelSerializer):

@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 class Devices(models.Model):
@@ -7,6 +8,7 @@ class Devices(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True)
     type = models.CharField(max_length=50, blank=True)
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     def __str__(self):
