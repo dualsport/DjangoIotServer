@@ -73,7 +73,7 @@ class TagData(APIView):
 
     def post(self, request, format=None):
         print(request.data)
-        serializer = TagDataSerializer(data=request.data)
+        serializer = TagDataSerializer(data=request.data, context={'request': request})
         
         
         if serializer.is_valid():

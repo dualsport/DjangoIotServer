@@ -71,6 +71,7 @@ class TagDataSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         values = super().to_internal_value(data)
+
         tag_type = Tags.objects.select_related('value_type').get(pk=data['tag']).value_type.type
         val = str(data['value'])
 
@@ -122,6 +123,12 @@ class TagDataSerializer(serializers.ModelSerializer):
         del values['value']
         return values
 
+    #Validate request.user is owner of tag
+    def validate_tag(self, value):
+        if self.context['request'].user != value.owner:
+            msg = f"""Invalid pk "{value.tag_id}" - object does not exist."""
+            raise serializers.ValidationError(msg)
+        return value
 
     def create(self, validated_data):
         return IotData.objects.create(**validated_data)
