@@ -51,6 +51,11 @@ class Tags(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def owner(self):
+        return self.device.owner
+
+    #for Tags page in Admin module
     def device_concat(self):
         return self.device.device_id + ' / ' + self.device.name
     device_concat.short_description = 'Belongs to Device'
@@ -82,3 +87,7 @@ class IotData(models.Model):
             return self.value_text
         else:
             return 'Unknown value type for tag.'
+
+    @property
+    def owner(self):
+        return self.tag.device.owner

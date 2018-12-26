@@ -37,14 +37,15 @@ class DeviceDetail(generics.RetrieveUpdateDestroyAPIView):
 class TagList(generics.ListCreateAPIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
-
-    queryset = Tags.objects.all()
     serializer_class = TagSerializer
+
+    def get_queryset(self):
+        return Tags.objects.filter(device__owner=self.request.user)
 
 
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsOwner,)
 
     queryset = Tags.objects.all()
     serializer_class = TagSerializer
@@ -100,12 +101,15 @@ class TagDataList(generics.ListAPIView):
 
 
     def get_queryset(self):
+        #All IotData owned by request user
+        queryset = IotData.objects.filter(tag__device__owner=self.request.user)
+
+        #Filter on tag if given
         req_tag = self.request.query_params.get('tag', None)
         if req_tag:
-            queryset = IotData.objects.filter(tag=req_tag)
-        else:
-            queryset = IotData.objects.all()
+            queryset = queryset.filter(tag=req_tag)
 
+        #Filter on begin or after if given
         begin = self.request.query_params.get('begin', None)
         after = self.request.query_params.get('after', None)
         if begin or after:
@@ -116,6 +120,7 @@ class TagDataList(generics.ListAPIView):
                 after_dt = self.validate_date(after)
                 queryset = queryset.filter(timestamp__gt=after_dt)
 
+        #Filter on end or before if given
         end = self.request.query_params.get('end', None)
         before = self.request.query_params.get('before', None)
         if end or before:
@@ -126,7 +131,7 @@ class TagDataList(generics.ListAPIView):
                 before_dt = self.validate_date(before)
                 queryset = queryset.filter(timestamp__lt=before_dt)
 
-        
+        #Limit to max if given, else default to 100 records
         max = int(self.request.query_params.get('max', 100))
         queryset = queryset.order_by('timestamp')[:max]
 

@@ -10,10 +10,19 @@ class DeviceSerializer(serializers.ModelSerializer):
         fields = ('device_id', 'owner', 'name', 'description', 'type')
 
 
+class OwnedDevices(serializers.PrimaryKeyRelatedField):
+    def get_queryset(self):
+        user = self.context['request'].user
+        queryset = Devices.objects.filter(owner=user)
+        return queryset
+
+
 class TagSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    device = OwnedDevices(many=False)
     class Meta:
         model = Tags
-        fields = ('tag_id', 'name', 'description', 'device', 'value_type')
+        fields = ('tag_id', 'owner', 'name', 'description', 'device', 'value_type')
 
     #def validate(self, data):
     #    if 'bob' not in data['tag_id'].lower():
@@ -54,10 +63,11 @@ class IotBooleanSerializer(serializers.ModelSerializer):
 class TagDataSerializer(serializers.ModelSerializer):
     value = serializers.CharField(max_length=100)
     type = serializers.CharField(read_only=True, source='tag.value_type.type')
+    owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = IotData
-        fields = ('tag','type','value','timestamp')
+        fields = ('tag','owner','type','value','timestamp')
 
     def to_internal_value(self, data):
         values = super().to_internal_value(data)
