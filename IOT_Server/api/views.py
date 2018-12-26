@@ -11,14 +11,16 @@ from api.serializers import IotTextSerializer, IotIntegerSerializer, IotDecimalS
 from rest_framework import generics
 from rest_framework.views import APIView
 from django.utils import dateparse
+from api.permissions import IsOwner
 
 
 class DeviceList(generics.ListCreateAPIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
-
-    queryset = Devices.objects.all()
     serializer_class = DeviceSerializer
+
+    def get_queryset(self):
+        return Devices.objects.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -26,7 +28,7 @@ class DeviceList(generics.ListCreateAPIView):
 
 class DeviceDetail(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsOwner,)
 
     queryset = Devices.objects.all()
     serializer_class = DeviceSerializer
