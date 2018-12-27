@@ -24,6 +24,22 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tags
         fields = ('tag_id', 'owner', 'name', 'description', 'device', 'value_type')
 
+
+class DeviceTags(serializers.ModelSerializer):
+    class Meta:
+        model = Tags
+        fields = ('tag_id', 'name', 'description', 'value_type')
+
+
+class DeviceTagSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    device_tags = DeviceTags(many=True, read_only=True)
+
+    class Meta:
+        model = Devices
+        fields = ('device_id', 'owner', 'name', 'description', 'type', 'device_tags')
+
+
     #def validate(self, data):
     #    if 'bob' not in data['tag_id'].lower():
     #        raise serializers.ValidationError("Bob not in tag ID")
@@ -36,28 +52,28 @@ class ValTypeSerializer(serializers.ModelSerializer):
         fields = ('value_type_id', 'name', 'type')
 
 
-class IotTextSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = IotData
-        fields = ('tag','value_text')
+#class IotTextSerializer(serializers.ModelSerializer):
+#    class Meta:
+#        model = IotData
+#        fields = ('tag','value_text')
 
 
-class IotIntegerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = IotData
-        fields = ('tag','value_int')
+#class IotIntegerSerializer(serializers.ModelSerializer):
+#    class Meta:
+#        model = IotData
+#        fields = ('tag','value_int')
 
 
-class IotDecimalSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = IotData
-        fields = ('tag','value_dec')
+#class IotDecimalSerializer(serializers.ModelSerializer):
+#    class Meta:
+#        model = IotData
+#        fields = ('tag','value_dec')
 
 
-class IotBooleanSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = IotData
-        fields = ('tag','value_bool')
+#class IotBooleanSerializer(serializers.ModelSerializer):
+#    class Meta:
+#        model = IotData
+#        fields = ('tag','value_bool')
 
 
 class TagDataSerializer(serializers.ModelSerializer):

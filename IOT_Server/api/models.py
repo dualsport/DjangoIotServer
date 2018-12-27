@@ -41,7 +41,7 @@ class ValueTypes(models.Model):
 
 class Tags(models.Model):
     tag_id = models.CharField(max_length=25, primary_key=True, validators=[MinLengthValidator(3)])
-    device = models.ForeignKey(Devices, on_delete=models.PROTECT)
+    device = models.ForeignKey(Devices, related_name='device_tags', on_delete=models.PROTECT)
     value_type = models.ForeignKey(ValueTypes, on_delete=models.PROTECT)
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True)

@@ -12,3 +12,12 @@ class IsOwner(permissions.BasePermission):
         else:
             return False
 
+
+class IsSuperUser(permissions.BasePermission):
+    """
+    Custom permission allows only superuser access.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        return request.user and request.user.is_superuser
+

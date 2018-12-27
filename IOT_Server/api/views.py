@@ -6,16 +6,17 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from api.models import Devices, Tags, ValueTypes, IotData
-from api.serializers import DeviceSerializer, TagSerializer, ValTypeSerializer
-from api.serializers import IotTextSerializer, IotIntegerSerializer, IotDecimalSerializer, IotBooleanSerializer, TagDataSerializer
+from api.serializers import DeviceSerializer, TagSerializer, TagDataSerializer, ValTypeSerializer, DeviceTagSerializer
+#from api.serializers import IotTextSerializer, IotIntegerSerializer, IotDecimalSerializer, IotBooleanSerializer, TagDataSerializer
 from rest_framework import generics
 from rest_framework.views import APIView
+from django.views.generic import View
 from django.utils import dateparse
-from api.permissions import IsOwner
+from api.permissions import IsOwner, IsSuperUser
 
 
 class DeviceList(generics.ListCreateAPIView):
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = DeviceSerializer
 
@@ -43,6 +44,24 @@ class TagList(generics.ListCreateAPIView):
         return Tags.objects.filter(device__owner=self.request.user)
 
 
+class DeviceTagList(generics.ListAPIView):
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = DeviceTagSerializer
+    
+    def get_queryset(self):
+        #Devices owned by request user
+        queryset = Devices.objects.filter(owner=self.request.user)
+        #Device if given in url
+        device = self.kwargs.get('device_id', None)
+        if device:
+            queryset = queryset.filter(device_id=device)
+            if queryset:
+                return queryset
+            else:
+                raise serializers.ValidationError({'Device does not exist': device})
+        return queryset
+
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated, IsOwner,)
@@ -51,7 +70,23 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TagSerializer
 
 
-class ValTypeList(generics.ListCreateAPIView):
+class ValTypeDispatch(View):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            return ValTypeListCreate.as_view()(request, *args, **kwargs)
+        else:
+            return ValTypeList.as_view()(request, *args, **kwargs)
+
+
+class ValTypeListCreate(generics.ListCreateAPIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsSuperUser,)
+
+    queryset = ValueTypes.objects.all()
+    serializer_class = ValTypeSerializer
+
+
+class ValTypeList(generics.ListAPIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
 
@@ -61,7 +96,7 @@ class ValTypeList(generics.ListCreateAPIView):
 
 class ValTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsSuperUser,)
 
     queryset = ValueTypes.objects.all()
     serializer_class = ValTypeSerializer
