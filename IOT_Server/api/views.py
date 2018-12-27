@@ -16,7 +16,7 @@ from api.permissions import IsOwner, IsSuperUser
 
 
 class DeviceList(generics.ListCreateAPIView):
-    authentication_classes = (SessionAuthentication, TokenAuthentication,)
+    authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = DeviceSerializer
 
@@ -107,7 +107,6 @@ class TagData(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, format=None):
-        print(request.data)
         serializer = TagDataSerializer(data=request.data, context={'request': request})
         
         
