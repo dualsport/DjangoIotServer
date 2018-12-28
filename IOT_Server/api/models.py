@@ -1,3 +1,8 @@
+#--- IOT_Server - api app models ----------------------------------------------
+#--- Original Release: December 2018
+#--- By: Conrad Eggan
+#--- Email: Conrade@RedCatMfg.com
+
 from django.db import models
 from django.core.validators import MinLengthValidator
 from django.contrib.auth import get_user_model

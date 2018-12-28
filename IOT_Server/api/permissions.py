@@ -1,3 +1,8 @@
+#--- IOT_Server - api app custom permissions-----------------------------------
+#--- Original Release: December 2018
+#--- By: Conrad Eggan
+#--- Email: Conrade@RedCatMfg.com
+
 from rest_framework import permissions
 
 

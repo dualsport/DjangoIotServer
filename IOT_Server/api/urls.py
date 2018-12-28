@@ -1,3 +1,8 @@
+#--- IOT_Server - api app urls ----------------------------------------------
+#--- Original Release: December 2018
+#--- By: Conrad Eggan
+#--- Email: Conrade@RedCatMfg.com
+
 from django.urls import path
 from rest_framework.authtoken import views as drf_views
 from api import views

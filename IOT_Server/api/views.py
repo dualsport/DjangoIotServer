@@ -1,3 +1,8 @@
+#--- IOT_Server - api app views ----------------------------------------------
+#--- Original Release: December 2018
+#--- By: Conrad Eggan
+#--- Email: Conrade@RedCatMfg.com
+
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -5,13 +10,12 @@ from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from api.models import Devices, Tags, ValueTypes, IotData
-from api.serializers import DeviceSerializer, TagSerializer, TagDataSerializer, ValTypeSerializer, DeviceTagSerializer
-#from api.serializers import IotTextSerializer, IotIntegerSerializer, IotDecimalSerializer, IotBooleanSerializer, TagDataSerializer
 from rest_framework import generics
 from rest_framework.views import APIView
 from django.views.generic import View
 from django.utils import dateparse
+from api.models import Devices, Tags, ValueTypes, IotData
+from api.serializers import DeviceSerializer, TagSerializer, TagDataSerializer, ValTypeSerializer, DeviceTagSerializer
 from api.permissions import IsOwner, IsSuperUser
 
 
@@ -86,6 +90,14 @@ class ValTypeListCreate(generics.ListCreateAPIView):
     queryset = ValueTypes.objects.all()
     serializer_class = ValTypeSerializer
 
+    #Set name on page
+    def get_view_name(self):
+        name = 'Value Types'
+        suffix = getattr(self, 'suffix', None)
+        if suffix:
+            name += ' ' + suffix
+        return name
+
 
 class ValTypeList(generics.ListAPIView):
     authentication_classes = (SessionAuthentication,)
@@ -93,6 +105,14 @@ class ValTypeList(generics.ListAPIView):
 
     queryset = ValueTypes.objects.all()
     serializer_class = ValTypeSerializer
+
+    #Set name on page
+    def get_view_name(self):
+        name = 'Value Types'
+        suffix = getattr(self, 'suffix', None)
+        if suffix:
+            name += ' ' + suffix
+        return name
 
 
 class ValTypeDetail(generics.RetrieveUpdateDestroyAPIView):

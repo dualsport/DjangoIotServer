@@ -1,3 +1,8 @@
+#--- IOT_Server - api app serializers ----------------------------------------------
+#--- Original Release: December 2018
+#--- By: Conrad Eggan
+#--- Email: Conrade@RedCatMfg.com
+
 from rest_framework import serializers
 from api.models import Devices, Tags, ValueTypes, IotData
 from distutils.util import strtobool
@@ -11,6 +16,7 @@ class DeviceSerializer(serializers.ModelSerializer):
 
 
 class OwnedDevices(serializers.PrimaryKeyRelatedField):
+    #Limit device list to those owned by request.user
     def get_queryset(self):
         user = self.context['request'].user
         queryset = Devices.objects.filter(owner=user)
@@ -47,6 +53,7 @@ class ValTypeSerializer(serializers.ModelSerializer):
 
 
 class OwnedTags(serializers.PrimaryKeyRelatedField):
+    #Limit tag list to those owned by request.user
     def get_queryset(self):
         user = self.context['request'].user
         queryset = Tags.objects.filter(device__owner=user)
@@ -66,9 +73,12 @@ class TagDataSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         values = super().to_internal_value(data)
 
+        #Get value type for tag POSTED
         tag_type = Tags.objects.select_related('value_type').get(pk=data['tag']).value_type.type
+        
         val = str(data['value'])
 
+        #-- Save value POSTED in appropriate field based on tag value type --
         #Handle boolean value
         if tag_type == 'bool':
             try:

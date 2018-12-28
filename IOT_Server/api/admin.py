@@ -1,3 +1,8 @@
+#--- IOT_Server - api app -----------------------------------------------------
+#--- Original Release: December 2018
+#--- By: Conrad Eggan
+#--- Email: Conrade@RedCatMfg.com
+
 from django.contrib import admin
 from api.models import Devices, Tags, ValueTypes
 
