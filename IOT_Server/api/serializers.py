@@ -40,46 +40,24 @@ class DeviceTagSerializer(serializers.ModelSerializer):
         fields = ('device_id', 'owner', 'name', 'description', 'type', 'device_tags')
 
 
-    #def validate(self, data):
-    #    if 'bob' not in data['tag_id'].lower():
-    #        raise serializers.ValidationError("Bob not in tag ID")
-    #    return data
-
-
 class ValTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ValueTypes
         fields = ('value_type_id', 'name', 'type')
 
 
-#class IotTextSerializer(serializers.ModelSerializer):
-#    class Meta:
-#        model = IotData
-#        fields = ('tag','value_text')
-
-
-#class IotIntegerSerializer(serializers.ModelSerializer):
-#    class Meta:
-#        model = IotData
-#        fields = ('tag','value_int')
-
-
-#class IotDecimalSerializer(serializers.ModelSerializer):
-#    class Meta:
-#        model = IotData
-#        fields = ('tag','value_dec')
-
-
-#class IotBooleanSerializer(serializers.ModelSerializer):
-#    class Meta:
-#        model = IotData
-#        fields = ('tag','value_bool')
+class OwnedTags(serializers.PrimaryKeyRelatedField):
+    def get_queryset(self):
+        user = self.context['request'].user
+        queryset = Tags.objects.filter(device__owner=user)
+        return queryset
 
 
 class TagDataSerializer(serializers.ModelSerializer):
     value = serializers.CharField(max_length=100)
     type = serializers.CharField(read_only=True, source='tag.value_type.type')
     owner = serializers.ReadOnlyField(source='owner.username')
+    tag = OwnedTags(many=False)
 
     class Meta:
         model = IotData

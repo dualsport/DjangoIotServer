@@ -51,7 +51,8 @@ class DeviceTagList(generics.ListAPIView):
     
     def get_queryset(self):
         #Devices owned by request user
-        queryset = Devices.objects.filter(owner=self.request.user)
+        #queryset = Devices.objects.filter(owner=self.request.user) --handled by serializers.OwnedTags
+        queryset = Devices.objects.all()
         #Device if given in url
         device = self.kwargs.get('device_id', None)
         if device:
@@ -116,7 +117,7 @@ class TagData(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TagDataList(generics.ListAPIView):
+class TagDataList(generics.ListCreateAPIView):
     serializer_class = TagDataSerializer
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
