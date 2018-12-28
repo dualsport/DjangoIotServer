@@ -2,7 +2,6 @@
 #Returns token from API for valid user credentials
 
 import requests
-import json
 
 #Get user credentials
 user = input('Username: ')

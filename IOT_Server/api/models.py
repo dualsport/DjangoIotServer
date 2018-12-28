@@ -6,7 +6,6 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 
 class Devices(models.Model):
     device_id = models.CharField(max_length=25, primary_key=True)
