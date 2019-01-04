@@ -3,6 +3,7 @@
 
 #Specific project files
 settings.py
+wsgi.py
 notes.txt
 tests/
 
