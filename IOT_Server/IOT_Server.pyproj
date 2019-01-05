@@ -68,9 +68,11 @@
     </Compile>
     <Compile Include="api\views.py" />
     <Compile Include="api\__init__.py" />
+    <Compile Include="IOT_Server\wsgi.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="IOT_Server\settings.py" />
     <Compile Include="IOT_Server\urls.py" />
-    <Compile Include="IOT_Server\wsgi.py" />
     <Compile Include="IOT_Server\__init__.py" />
     <Compile Include="manage.py" />
   </ItemGroup>

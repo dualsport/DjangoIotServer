@@ -192,3 +192,24 @@ class TagDataList(generics.ListCreateAPIView):
         return queryset
 
 
+class TagDataCurrent(generics.ListAPIView):
+    #Returns the latest value for a given tag
+    serializer_class = TagDataSerializer
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        #All IotData owned by request user
+        queryset = IotData.objects.filter(tag__device__owner=self.request.user)
+        #Filter on tag
+        req_tag = self.request.query_params.get('tag', None)
+        if req_tag:
+            queryset = queryset.filter(tag=req_tag)
+        else:
+            #return the last record of all owned tags
+            #could throw a ValidationError here
+            pass
+        #return last record
+        queryset = queryset.order_by('-timestamp')[:1]
+
+        return queryset
