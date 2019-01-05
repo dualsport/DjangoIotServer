@@ -13,7 +13,7 @@ urlpatterns = [
     path('device/<pk>/', views.DeviceDetail.as_view()),
     path('devicetags/', views.DeviceTagList.as_view()),
     path('devicetag/<device_id>/', views.DeviceTagList.as_view()),
-    path('valuetypes/', views.ValTypeDispatch.as_view()),
+    path('valuetypes/', views.ValTypeListCreate.as_view()),
     path('valuetype/<pk>/', views.ValTypeDetail.as_view()),
     path('tags/', views.TagList.as_view()),
     path('tag/<pk>/', views.TagDetail.as_view()),

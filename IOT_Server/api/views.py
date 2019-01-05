@@ -15,7 +15,7 @@ from django.views.generic import View
 from django.utils import dateparse
 from api.models import Devices, Tags, ValueTypes, IotData
 from api.serializers import DeviceSerializer, TagSerializer, TagDataSerializer, ValTypeSerializer, DeviceTagSerializer
-from api.permissions import IsOwner, IsSuperUser
+from api.permissions import IsOwner, IsSuperUser, IsGetOnlyUnlessStaff
 
 
 class DeviceList(generics.ListCreateAPIView):
@@ -74,33 +74,9 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TagSerializer
 
 
-class ValTypeDispatch(View):
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_superuser:
-            return ValTypeListCreate.as_view()(request, *args, **kwargs)
-        else:
-            return ValTypeList.as_view()(request, *args, **kwargs)
-
-
 class ValTypeListCreate(generics.ListCreateAPIView):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsSuperUser,)
-
-    queryset = ValueTypes.objects.all()
-    serializer_class = ValTypeSerializer
-
-    #Set name on page
-    def get_view_name(self):
-        name = 'Value Types'
-        suffix = getattr(self, 'suffix', None)
-        if suffix:
-            name += ' ' + suffix
-        return name
-
-
-class ValTypeList(generics.ListAPIView):
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsGetOnlyUnlessStaff,)
 
     queryset = ValueTypes.objects.all()
     serializer_class = ValTypeSerializer
@@ -116,7 +92,7 @@ class ValTypeList(generics.ListAPIView):
 
 class ValTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsSuperUser,)
+    permission_classes = (IsAuthenticated, IsGetOnlyUnlessStaff,)
 
     queryset = ValueTypes.objects.all()
     serializer_class = ValTypeSerializer
