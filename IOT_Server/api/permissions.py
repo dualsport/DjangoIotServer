@@ -25,7 +25,7 @@ class IsSuperUser(permissions.BasePermission):
         return request.user and request.user.is_superuser
 
 
-class IsGetOnlyUnlessStaff(permissions.BasePermission):
+class GetOnlyUnlessIsStaff(permissions.BasePermission):
     """
     Allows get only unless Staff member
     """

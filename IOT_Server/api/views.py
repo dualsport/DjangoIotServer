@@ -15,7 +15,7 @@ from django.views.generic import View
 from django.utils import dateparse
 from api.models import Devices, Tags, ValueTypes, IotData
 from api.serializers import DeviceSerializer, TagSerializer, TagDataSerializer, ValTypeSerializer, DeviceTagSerializer
-from api.permissions import IsOwner, IsSuperUser, IsGetOnlyUnlessStaff
+from api.permissions import IsOwner, IsSuperUser, GetOnlyUnlessIsStaff
 
 
 class DeviceList(generics.ListCreateAPIView):
@@ -76,7 +76,7 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class ValTypeListCreate(generics.ListCreateAPIView):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated, IsGetOnlyUnlessStaff,)
+    permission_classes = (IsAuthenticated, GetOnlyUnlessIsStaff,)
 
     queryset = ValueTypes.objects.all()
     serializer_class = ValTypeSerializer
@@ -92,7 +92,7 @@ class ValTypeListCreate(generics.ListCreateAPIView):
 
 class ValTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated, IsGetOnlyUnlessStaff,)
+    permission_classes = (IsAuthenticated, GetOnlyUnlessIsStaff,)
 
     queryset = ValueTypes.objects.all()
     serializer_class = ValTypeSerializer
