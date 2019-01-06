@@ -19,7 +19,7 @@ from api.permissions import IsOwner, IsSuperUser, GetOnlyUnlessIsStaff
 
 
 class DeviceList(generics.ListCreateAPIView):
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = DeviceSerializer
 
@@ -31,7 +31,7 @@ class DeviceList(generics.ListCreateAPIView):
 
 
 class DeviceDetail(generics.RetrieveUpdateDestroyAPIView):
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsOwner,)
 
     queryset = Devices.objects.all()
@@ -105,7 +105,6 @@ class TagData(APIView):
     def post(self, request, format=None):
         serializer = TagDataSerializer(data=request.data, context={'request': request})
         
-        
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -135,7 +134,7 @@ class TagDataList(generics.ListCreateAPIView):
         queryset = IotData.objects.filter(tag__device__owner=self.request.user)
 
         #Filter on tag if given
-        req_tag = self.request.query_params.get('tag', None)
+        req_tag = self.kwargs.get('tag', None)
         if req_tag:
             queryset = queryset.filter(tag=req_tag)
 
@@ -178,7 +177,7 @@ class TagDataCurrent(generics.ListAPIView):
         #All IotData owned by request user
         queryset = IotData.objects.filter(tag__device__owner=self.request.user)
         #Filter on tag
-        req_tag = self.request.query_params.get('tag', None)
+        req_tag = self.kwargs.get('tag', None)
         if req_tag:
             queryset = queryset.filter(tag=req_tag)
         else:

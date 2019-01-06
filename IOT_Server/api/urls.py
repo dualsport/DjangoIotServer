@@ -18,7 +18,7 @@ urlpatterns = [
     path('tag/', views.TagList.as_view()),
     path('tag/<pk>/', views.TagDetail.as_view()),
     path('tagupdate/', views.TagData.as_view()),
-    path('tagdata/', views.TagDataList.as_view()),
-    path('tagcurrent/', views.TagDataCurrent.as_view()),
+    path('tagdata/<tag>/', views.TagDataList.as_view()),
+    path('tagcurrent/<tag>/', views.TagDataCurrent.as_view()),
     path('get-api-token/', drf_views.obtain_auth_token),
     ]
