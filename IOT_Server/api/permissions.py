@@ -10,7 +10,6 @@ class IsOwner(permissions.BasePermission):
     """
     Custom permission to allow only owners of an object to view or edit.
     """
-
     def has_object_permission(self, request, view, obj):
         if obj.owner == request.user:
             return True
@@ -22,7 +21,16 @@ class IsSuperUser(permissions.BasePermission):
     """
     Custom permission allows only superuser access.
     """
-
     def has_object_permission(self, request, view, obj):
         return request.user and request.user.is_superuser
 
+
+class GetOnlyUnlessIsStaff(permissions.BasePermission):
+    """
+    Allows get only unless Staff member
+    """
+    def has_permission(self, request, view):
+        if request.method == 'GET':
+            return True
+        #Otherwise must be staff
+        return request.user and request.user.is_staff

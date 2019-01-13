@@ -15,11 +15,11 @@ from django.views.generic import View
 from django.utils import dateparse
 from api.models import Devices, Tags, ValueTypes, IotData
 from api.serializers import DeviceSerializer, TagSerializer, TagDataSerializer, ValTypeSerializer, DeviceTagSerializer
-from api.permissions import IsOwner, IsSuperUser
+from api.permissions import IsOwner, IsSuperUser, GetOnlyUnlessIsStaff
 
 
 class DeviceList(generics.ListCreateAPIView):
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = DeviceSerializer
 
@@ -31,7 +31,7 @@ class DeviceList(generics.ListCreateAPIView):
 
 
 class DeviceDetail(generics.RetrieveUpdateDestroyAPIView):
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsOwner,)
 
     queryset = Devices.objects.all()
@@ -74,33 +74,9 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TagSerializer
 
 
-class ValTypeDispatch(View):
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_superuser:
-            return ValTypeListCreate.as_view()(request, *args, **kwargs)
-        else:
-            return ValTypeList.as_view()(request, *args, **kwargs)
-
-
 class ValTypeListCreate(generics.ListCreateAPIView):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsSuperUser,)
-
-    queryset = ValueTypes.objects.all()
-    serializer_class = ValTypeSerializer
-
-    #Set name on page
-    def get_view_name(self):
-        name = 'Value Types'
-        suffix = getattr(self, 'suffix', None)
-        if suffix:
-            name += ' ' + suffix
-        return name
-
-
-class ValTypeList(generics.ListAPIView):
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, GetOnlyUnlessIsStaff,)
 
     queryset = ValueTypes.objects.all()
     serializer_class = ValTypeSerializer
@@ -116,7 +92,7 @@ class ValTypeList(generics.ListAPIView):
 
 class ValTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsSuperUser,)
+    permission_classes = (IsAuthenticated, GetOnlyUnlessIsStaff,)
 
     queryset = ValueTypes.objects.all()
     serializer_class = ValTypeSerializer
@@ -128,7 +104,6 @@ class TagData(APIView):
 
     def post(self, request, format=None):
         serializer = TagDataSerializer(data=request.data, context={'request': request})
-        
         
         if serializer.is_valid():
             serializer.save()
@@ -159,7 +134,7 @@ class TagDataList(generics.ListCreateAPIView):
         queryset = IotData.objects.filter(tag__device__owner=self.request.user)
 
         #Filter on tag if given
-        req_tag = self.request.query_params.get('tag', None)
+        req_tag = self.kwargs.get('tag', None)
         if req_tag:
             queryset = queryset.filter(tag=req_tag)
 
@@ -192,3 +167,24 @@ class TagDataList(generics.ListCreateAPIView):
         return queryset
 
 
+class TagDataCurrent(generics.ListAPIView):
+    #Returns the latest value for a given tag
+    serializer_class = TagDataSerializer
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        #All IotData owned by request user
+        queryset = IotData.objects.filter(tag__device__owner=self.request.user)
+        #Filter on tag
+        req_tag = self.kwargs.get('tag', None)
+        if req_tag:
+            queryset = queryset.filter(tag=req_tag)
+        else:
+            #return the last record of all owned tags
+            #could throw a ValidationError here
+            pass
+        #return last record
+        queryset = queryset.order_by('-timestamp')[:1]
+
+        return queryset
