@@ -19,6 +19,12 @@ from api.permissions import IsOwner, IsSuperUser, GetOnlyUnlessIsStaff
 
 
 class DeviceList(generics.ListCreateAPIView):
+    """
+    get:
+    Returns a list of devices that belong to you.
+    post:
+    Creates a new device that belongs to you.
+    """
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = DeviceSerializer
@@ -31,6 +37,12 @@ class DeviceList(generics.ListCreateAPIView):
 
 
 class DeviceDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get: Returns details for the requested tag.
+    put: Update details for the given tag. (requires the complete entity)
+    patch: Update details for the given tag. (requires only the property to be updated)
+    delete: Deletes the given tag.
+    """
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsOwner,)
 

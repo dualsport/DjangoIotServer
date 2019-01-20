@@ -6,7 +6,9 @@
 from django.urls import path
 from rest_framework.authtoken import views as drf_views
 from api import views
+from rest_framework_swagger.views import get_swagger_view
 
+schema_view = get_swagger_view(title="Swagger Docs")
 
 urlpatterns = [
     path('device/', views.DeviceList.as_view()),
@@ -21,4 +23,5 @@ urlpatterns = [
     path('tagdata/<tag>/', views.TagDataList.as_view()),
     path('tagcurrent/<tag>/', views.TagDataCurrent.as_view()),
     path('get-api-token/', drf_views.obtain_auth_token),
+    path('docs/', schema_view),
     ]
