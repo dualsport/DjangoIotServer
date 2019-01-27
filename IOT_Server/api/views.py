@@ -13,17 +13,16 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from django.views.generic import View
 from django.utils import dateparse
+from rest_framework.authtoken.views import ObtainAuthToken
 from api.models import Devices, Tags, ValueTypes, IotData
 from api.serializers import DeviceSerializer, TagSerializer, TagDataSerializer, ValTypeSerializer, DeviceTagSerializer
 from api.permissions import IsOwner, IsSuperUser, GetOnlyUnlessIsStaff
 
 
-class DeviceList(generics.ListCreateAPIView):
+class DeviceList(generics.ListAPIView):
     """
     get:
     Returns a list of devices that belong to you.
-    post:
-    Creates a new device that belongs to you.
     """
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -32,16 +31,26 @@ class DeviceList(generics.ListCreateAPIView):
     def get_queryset(self):
         return Devices.objects.filter(owner=self.request.user)
 
+
+class DeviceCreate(generics.CreateAPIView):
+    """
+    post:
+    Creates a new device that belongs to you.
+    """
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = DeviceSerializer
+
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
 
 class DeviceDetail(generics.RetrieveUpdateDestroyAPIView):
     """
-    get: Returns details for the requested tag.
-    put: Update details for the given tag. (requires the complete entity)
-    patch: Update details for the given tag. (requires only the property to be updated)
-    delete: Deletes the given tag.
+    get: Returns details for the given device.
+    put: Update details for the given device. (requires the complete entity)
+    patch: Update details for the given device. (requires only the property to be updated)
+    delete: Deletes the given device.
     """
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsOwner,)
@@ -50,7 +59,11 @@ class DeviceDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DeviceSerializer
 
 
-class TagList(generics.ListCreateAPIView):
+class TagList(generics.ListAPIView):
+    """
+    get:
+    Returns a list of tags that belong to you.
+    """
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = TagSerializer
@@ -59,7 +72,20 @@ class TagList(generics.ListCreateAPIView):
         return Tags.objects.filter(device__owner=self.request.user)
 
 
+class TagCreate(generics.CreateAPIView):
+    """
+    post:
+    Creates a new device that belongs to you.
+    """
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = TagSerializer
+
+
 class DeviceTagList(generics.ListAPIView):
+    """
+    get: Returns a nested representation of Devices and Tags
+    """
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = DeviceTagSerializer
@@ -79,6 +105,12 @@ class DeviceTagList(generics.ListAPIView):
         return queryset
 
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get: Returns details for the given tag.
+    put: Update details for the given tag. (requires the complete entity)
+    patch: Update details for the given tag. (requires only the property to be updated)
+    delete: Deletes the given tag.
+    """
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated, IsOwner,)
 
@@ -87,6 +119,9 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ValTypeListCreate(generics.ListCreateAPIView):
+    """
+    get: Returns a list of ValueTypes
+    """
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated, GetOnlyUnlessIsStaff,)
 
@@ -103,14 +138,30 @@ class ValTypeListCreate(generics.ListCreateAPIView):
 
 
 class ValTypeDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get: Returns a list of ValueTypes
+    post: Create a new ValueType record
+    put: Update details for the given ValueType. (requires the complete entity)
+    patch: Update details for the given ValueType. (requires only the property to be updated)
+    delete: Deletes the given ValueType.
+    """
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated, GetOnlyUnlessIsStaff,)
+    permission_classes = (IsAuthenticated, IsSuperUser,)
 
     queryset = ValueTypes.objects.all()
     serializer_class = ValTypeSerializer
 
 
 class TagData(APIView):
+    """
+    post: Add a new value record for a Tag.
+    data
+    {
+      "tag_id": "string",
+      "value": "string"
+    }
+    """
+    serializer_class = TagDataSerializer
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
@@ -123,7 +174,21 @@ class TagData(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TagDataList(generics.ListCreateAPIView):
+class TagDataList(generics.ListAPIView):
+    """
+    get: Returns a list of data for the given tag.
+    |
+    Allowable URL parameters are:
+    begin=datetime -- Return records from this time (inclusive)
+    after=datetime -- Return records after this time (non-inclusive)
+    end=datetime -- Return records up to this time (inclusive)
+    before=datetime -- Return records occurring before this time (non-inclusive)
+    max=number -- Maximum number of records to return (default=100)
+    |
+    Note1 - all datetime values must be given in timezone aware format, e.g. 2019-01-27T18:09:23.423595Z
+    Note2 - If begin & after are given begin is used, if end and before are given end is used.
+
+    """
     serializer_class = TagDataSerializer
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -180,7 +245,9 @@ class TagDataList(generics.ListCreateAPIView):
 
 
 class TagDataCurrent(generics.ListAPIView):
-    #Returns the latest value for a given tag
+    """
+    Returns the latest value for a given tag
+    """
     serializer_class = TagDataSerializer
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -200,3 +267,4 @@ class TagDataCurrent(generics.ListAPIView):
         queryset = queryset.order_by('-timestamp')[:1]
 
         return queryset
+
