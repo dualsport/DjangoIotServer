@@ -62,7 +62,7 @@ class OwnedTags(serializers.PrimaryKeyRelatedField):
 
 class TagDataSerializer(serializers.ModelSerializer):
     value = serializers.CharField(max_length=100)
-    type = serializers.CharField(read_only=True, source='tag.value_type.type')
+    type = serializers.ReadOnlyField(source='tag.value_type.type')
     owner = serializers.ReadOnlyField(source='owner.username')
     tag = OwnedTags(many=False)
 
