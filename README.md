@@ -10,5 +10,5 @@ Project to create an API to collect and store data from IOT devices.
 5. Retrieve multiple tag data points by datetime range
 6. Retrieve current tag value
 
-###Swagger Integration
+### Swagger Integration
 - Documentation at docs/
