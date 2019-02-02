@@ -1,10 +1,14 @@
 # DjangoIotServer
 
-Project to create an API to collect and store data from my IOT devices.
+Project to create an API to collect and store data from IOT devices.
 
-## Exposed APIs:
-1. Device API to add or list devices.
-2. Tags API to add or list tags.
-3. Tagdata API for adding data points from devices.
-4. Tagdata API for retreiving stored tag data.
-5. More as we go!
+## Features:
+1. Manage data from multiple devices
+2. Multiple tags per device
+3. Add data with a simple API call containing tag:value pair
+4. Multiple value types
+5. Retrieve multiple tag data points by datetime range
+6. Retrieve current tag value
+
+###Swagger Integration
+- Documentation at docs/
