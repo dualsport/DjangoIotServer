@@ -8,7 +8,12 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.authentication import TokenAuthentication
+#removefrom rest_framework.authtoken.models import Token
+#removefrom rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.permissions import IsAuthenticated
+#removefrom rest_framework import parsers, renderers
+#removefrom rest_framework.compat import coreapi, coreschema
+#removefrom rest_framework.schemas import ManualSchema
 from rest_framework import generics
 from rest_framework.views import APIView
 from django.views.generic import View
@@ -246,7 +251,7 @@ class TagDataList(generics.ListAPIView):
 
 class TagDataCurrent(generics.ListAPIView):
     """
-    Returns the latest value for a given tag
+    get: Returns the latest value for a given tag
     """
     serializer_class = TagDataSerializer
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
@@ -267,4 +272,49 @@ class TagDataCurrent(generics.ListAPIView):
         queryset = queryset.order_by('-timestamp')[:1]
 
         return queryset
+
+#remove
+    #Class is a copy of rest_framework.authtoken.views import ObtainAuthToken
+    #in an attempt to display docstring in swagger docs
+#class GetAuthToken(APIView):
+#    """
+#    post: Returns API Token for given Username and Password.
+#    """
+#    throttle_classes = ()
+#    permission_classes = ()
+#    parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser,)
+#    renderer_classes = (renderers.JSONRenderer,)
+#    serializer_class = AuthTokenSerializer
+#    if coreapi is not None and coreschema is not None:
+#        schema = ManualSchema(
+#            fields=[
+#                coreapi.Field(
+#                    name="username",
+#                    required=True,
+#                    location='form',
+#                    schema=coreschema.String(
+#                        title="Username",
+#                        description="Valid username for authentication",
+#                    ),
+#                ),
+#                coreapi.Field(
+#                    name="password",
+#                    required=True,
+#                    location='form',
+#                    schema=coreschema.String(
+#                        title="Password",
+#                        description="Valid password for authentication",
+#                    ),
+#                ),
+#            ],
+#            encoding="application/json",
+#        )
+
+#    def post(self, request, *args, **kwargs):
+#        serializer = self.serializer_class(data=request.data,
+#                                           context={'request': request})
+#        serializer.is_valid(raise_exception=True)
+#        user = serializer.validated_data['user']
+#        token, created = Token.objects.get_or_create(user=user)
+#        return Response({'token': token.key})
 

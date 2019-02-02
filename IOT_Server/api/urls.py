@@ -13,8 +13,8 @@ urlpatterns_include = [
     path('device/add/', views.DeviceCreate.as_view()),
     path('device/edit/<pk>/', views.DeviceDetail.as_view()),
     path('device/list/', views.DeviceList.as_view()),
-    path('device/tags/', views.DeviceTagList.as_view()),
-    path('device/tags/<device_id>/', views.DeviceTagList.as_view()),
+    path('device/tag/', views.DeviceTagList.as_view()),
+    path('device/tag/<device_id>/', views.DeviceTagList.as_view()),
     path('valuetype/', views.ValTypeListCreate.as_view()),
     path('valuetype/<pk>/', views.ValTypeDetail.as_view()),
     path('tag/add/', views.TagCreate.as_view()),
@@ -27,9 +27,10 @@ urlpatterns_include = [
     ]
 
 
-schema_view = get_swagger_view(title="Swagger Docs", patterns=urlpatterns_include)
+schema_view = get_swagger_view(title="Red Cat IOT Docs", patterns=urlpatterns_include)
 
 #Only urls in urlpatterns_include are included in Swagger documentation
 urlpatterns = urlpatterns_include + [
+    path('', schema_view),
     path('docs/', schema_view),
     ]
