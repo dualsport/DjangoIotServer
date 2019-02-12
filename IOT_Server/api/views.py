@@ -116,7 +116,7 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     patch: Update details for the given tag. (requires only the property to be updated)
     delete: Deletes the given tag.
     """
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsOwner,)
 
     queryset = Tags.objects.all()
