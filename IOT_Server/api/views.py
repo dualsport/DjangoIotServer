@@ -82,7 +82,7 @@ class TagCreate(generics.CreateAPIView):
     post:
     Creates a new device that belongs to you.
     """
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = TagSerializer
 
