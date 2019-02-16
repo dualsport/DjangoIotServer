@@ -162,7 +162,7 @@ class TagData(APIView):
     post: Add a new value record for a Tag.
     data
     {
-      "tag_id": "string",
+      "tag": "string",
       "value": "string"
     }
     """

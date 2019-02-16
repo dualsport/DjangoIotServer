@@ -54,9 +54,6 @@
     <Compile Include="api\serializers.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="api\get_token.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="api\urls.py">
       <SubType>Code</SubType>
     </Compile>
