@@ -165,6 +165,11 @@ class TagData(APIView):
       "tag": "string",
       "value": "string"
     }
+    |
+    Optional json parameter: "timestamp": "<timezone aware datetime>"
+    If optional timestamp is not supplied the current datetime will be used.
+    Timezone aware format example: "1999-01-31T09:00:00.000-06:00" (US CST)
+    Timezone aware format example: "1999-01-31T15:00:00.000Z" (GMT)
     """
     serializer_class = TagDataSerializer
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
@@ -190,7 +195,7 @@ class TagDataList(generics.ListAPIView):
     before=datetime -- Return records occurring before this time (non-inclusive)
     max=number -- Maximum number of records to return (default=100)
     |
-    Note1 - all datetime values must be given in timezone aware format, e.g. 2019-01-27T18:09:23.423595Z
+    Note1 - all datetime values must be given in timezone aware format, e.g. "2010-01-27T18:09:23.123456Z"
     Note2 - If begin & after are given begin is used, if end and before are given end is used.
 
     """

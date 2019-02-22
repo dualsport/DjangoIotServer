@@ -6,6 +6,7 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 class Devices(models.Model):
     device_id = models.CharField(max_length=25, primary_key=True)
@@ -72,11 +73,12 @@ class Tags(models.Model):
 
 class IotData(models.Model):
     tag = models.ForeignKey(Tags, on_delete=models.PROTECT)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(default=timezone.now)
     value_int = models.IntegerField(blank=True, null = True)
     value_dec = models.DecimalField(max_digits=8, decimal_places=3, blank=True, null = True)
     value_text = models.CharField(max_length=100, blank=True, null = True)
     value_bool = models.BooleanField(blank=True, null = True)
+    created_on = models.DateTimeField(auto_now_add=True)
 
     @property
     def value(self):
