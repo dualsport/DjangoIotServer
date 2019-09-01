@@ -20,7 +20,9 @@ from django.views.generic import View
 from django.utils import dateparse
 from rest_framework.authtoken.views import ObtainAuthToken
 from api.models import Devices, Tags, ValueTypes, IotData
+from api.models import WeatherStations, WeatherData
 from api.serializers import DeviceSerializer, TagSerializer, TagDataSerializer, ValTypeSerializer, DeviceTagSerializer
+from api.serializers import WxStationSerializer, WxDataSerializer
 from api.permissions import IsOwner, IsSuperUser, GetOnlyUnlessIsStaff
 
 
@@ -278,48 +280,67 @@ class TagDataCurrent(generics.ListAPIView):
 
         return queryset
 
-#remove
-    #Class is a copy of rest_framework.authtoken.views import ObtainAuthToken
-    #in an attempt to display docstring in swagger docs
-#class GetAuthToken(APIView):
-#    """
-#    post: Returns API Token for given Username and Password.
-#    """
-#    throttle_classes = ()
-#    permission_classes = ()
-#    parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser,)
-#    renderer_classes = (renderers.JSONRenderer,)
-#    serializer_class = AuthTokenSerializer
-#    if coreapi is not None and coreschema is not None:
-#        schema = ManualSchema(
-#            fields=[
-#                coreapi.Field(
-#                    name="username",
-#                    required=True,
-#                    location='form',
-#                    schema=coreschema.String(
-#                        title="Username",
-#                        description="Valid username for authentication",
-#                    ),
-#                ),
-#                coreapi.Field(
-#                    name="password",
-#                    required=True,
-#                    location='form',
-#                    schema=coreschema.String(
-#                        title="Password",
-#                        description="Valid password for authentication",
-#                    ),
-#                ),
-#            ],
-#            encoding="application/json",
-#        )
 
-#    def post(self, request, *args, **kwargs):
-#        serializer = self.serializer_class(data=request.data,
-#                                           context={'request': request})
-#        serializer.is_valid(raise_exception=True)
-#        user = serializer.validated_data['user']
-#        token, created = Token.objects.get_or_create(user=user)
-#        return Response({'token': token.key})
+class WxStationList(generics.ListAPIView):
+    """
+    get:
+    Returns a list of Weather Stations that belong to you.
+    """
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = WxStationSerializer
+
+    def get_queryset(self):
+        return WeatherStations.objects.filter(owner=self.request.user)
+
+
+class WxStationCreate(generics.CreateAPIView):
+    """
+    post:
+    Creates a new Weather Station that belongs to you.
+    """
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = WxStationSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class WxStationList(generics.ListAPIView):
+    """
+    get:
+    Returns a list of Weather Stations that belong to you.
+    """
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = WxStationSerializer
+
+    def get_queryset(self):
+        return WeatherStations.objects.filter(owner=self.request.user)
+
+
+class WxStationDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get: Returns details for the given weather station.
+    put: Update details for the given weather station. (requires the complete entity)
+    patch: Update details for the given weather station. (requires only the property to be updated)
+    delete: Deletes the given weather station.
+    """
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsOwner,)
+
+    queryset = WeatherStations.objects.all()
+    serializer_class = WxStationSerializer
+    lookup_field = 'identifier'
+
+
+class WxDataCreate(generics.CreateAPIView):
+    """
+    post:
+    Creates a new Weather data record
+    """
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = WxDataSerializer
 

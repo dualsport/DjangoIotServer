@@ -4,7 +4,9 @@
 #--- Email: Conrade@RedCatMfg.com
 
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from api.models import Devices, Tags, ValueTypes, IotData
+from api.models import WeatherStations, WeatherData
 from distutils.util import strtobool
 
 
@@ -136,4 +138,39 @@ class TagDataSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return IotData.objects.create(**validated_data)
+
+
+class WxStationSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    class Meta:
+        model = WeatherStations
+        fields = ('identifier', 'owner', 'name', 'description', 'type')
+
+    # Validate station identifier is unique for owner
+    def validate(self, data):
+        user = self.context['request'].user
+        queryset = WeatherStations.objects.filter(owner=user, identifier=data['identifier'])
+        if queryset:
+            msg = f"Identifier {data['identifier']} already exists."
+            raise serializers.ValidationError(msg)
+        return data
+
+
+class OwnedWxStations(serializers.PrimaryKeyRelatedField):
+    #Limit Weather Station list to those owned by request.user
+    def get_queryset(self):
+        user = self.context['request'].user
+        queryset = WeatherStations.objects.filter(owner=user)
+        return queryset
+
+
+class WxDataSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    station_identifier = serializers.CharField(source='station.identifier')
+    station = OwnedWxStations(read_only=True, many=False)
+
+    class Meta:
+        model = WeatherData
+        fields = ('station', 'station_identifier', 'owner', 'temperature', 'dewpoint', 'temp_uom',
+                  'wind_speed', 'wind_gust', 'wind_uom', 'wind_dir', 'dir_uom')
 
