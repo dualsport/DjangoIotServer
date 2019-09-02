@@ -207,13 +207,13 @@ class TagDataList(generics.ListAPIView):
 
 
     def validate_date(self, dt):
-        valid_dt_fmt = {'Valid date format is': '2010-06-30T15:30:00'}
+        valid_dt_fmt = {'Valid datetime format is': '2010-06-30T15:30:00'}
         try:
             valid_dt = dateparse.parse_datetime(dt)
         except ValueError as e:
-            raise serializers.ValidationError({'Invalid date given': str(e)})
+            raise serializers.ValidationError({'Invalid value given': str(e)})
         if not valid_dt:
-            raise serializers.ValidationError({'Invalid value parameter': f'{dt}',
+            raise serializers.ValidationError({'Invalid datetime parameter': f'{dt}',
                                                **valid_dt_fmt})
         return valid_dt
 
@@ -348,18 +348,95 @@ class WxDataCreate(generics.CreateAPIView):
 class WxDataList(generics.ListAPIView):
     """
     get:
-    Returns a list of Weather data that belongs to you.
+    Returns a list of Weather data for a given station id.
+    |
+    Allowable URL parameters are:
+    begin=datetime -- Return records from this time (inclusive)
+    after=datetime -- Return records after this time (non-inclusive)
+    end=datetime -- Return records up to this time (inclusive)
+    before=datetime -- Return records occurring before this time (non-inclusive)
+    max=number -- Maximum number of records to return (default=100)
+    |
+    Note1 - all datetime values must be given in timezone aware format, e.g. "2010-01-27T18:09:23.123456Z"
+    Note2 - If begin & after are given begin is used, if end and before are given end is used.
+
     """
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = WxDataSerializer
 
+    def validate_date(self, dt):
+        valid_dt_fmt = {'Valid datetime format is': '2010-06-30T15:30:00'}
+        try:
+            valid_dt = dateparse.parse_datetime(dt)
+        except ValueError as e:
+            raise serializers.ValidationError({'Invalid value given': str(e)})
+        if not valid_dt:
+            raise serializers.ValidationError({'Invalid datetime parameter': f'{dt}',
+                                               **valid_dt_fmt})
+        return valid_dt
+
     def get_queryset(self):
         queryset = WeatherData.objects.filter(station__owner=self.request.user)
-        #Filter on station if given
+
+        #Filter on station
         req_station = self.kwargs.get('station', None)
         if req_station:
             queryset = queryset.filter(station=req_station)
+
+        #Filter on begin or after if given
+        begin = self.request.query_params.get('begin', None)
+        after = self.request.query_params.get('after', None)
+        if begin or after:
+            if begin:
+                begin_dt = self.validate_date(begin)
+                queryset = queryset.filter(timestamp__gte=begin_dt)
+            else:
+                after_dt = self.validate_date(after)
+                queryset = queryset.filter(timestamp__gt=after_dt)
+
+        #Filter on end or before if given
+        end = self.request.query_params.get('end', None)
+        before = self.request.query_params.get('before', None)
+        if end or before:
+            if end:
+                end_dt = self.validate_date(end)
+                queryset = queryset.filter(timestamp__lte=end_dt)
+            else:
+                before_dt = self.validate_date(before)
+                queryset = queryset.filter(timestamp__lt=before_dt)
+
+        #Limit to max if given, else default to 100 records
+        max = int(self.request.query_params.get('max', 100))
+        queryset = queryset.order_by('timestamp')[:max]
+
         return queryset
+
+
+class WxDataCurrent(generics.ListAPIView):
+    """
+    get: Returns the latest value for a given station id.
+    """
+    serializer_class = WxDataSerializer
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        #All IotData owned by request user
+        queryset = WeatherData.objects.filter(station__owner=self.request.user)
+
+        #Filter on station
+        req_station = self.kwargs.get('station', None)
+        if req_station:
+            queryset = queryset.filter(station=req_station)
+        else:
+            #return the last record of all owned tags
+            #could throw a ValidationError here
+            pass
+        #return last record
+        queryset = queryset.order_by('-timestamp')[:1]
+
+        return queryset
+
 
     
