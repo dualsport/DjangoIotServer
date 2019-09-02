@@ -344,3 +344,22 @@ class WxDataCreate(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = WxDataSerializer
 
+
+class WxDataList(generics.ListAPIView):
+    """
+    get:
+    Returns a list of Weather data that belongs to you.
+    """
+    authentication_classes = (SessionAuthentication, TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = WxDataSerializer
+
+    def get_queryset(self):
+        queryset = WeatherData.objects.filter(station__owner=self.request.user)
+        #Filter on station if given
+        req_station = self.kwargs.get('station', None)
+        if req_station:
+            queryset = queryset.filter(station=req_station)
+        return queryset
+
+    

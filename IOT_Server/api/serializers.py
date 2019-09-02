@@ -166,11 +166,11 @@ class OwnedWxStations(serializers.PrimaryKeyRelatedField):
 
 class WxDataSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
-    station_identifier = serializers.CharField(source='station.identifier')
-    station = OwnedWxStations(read_only=True, many=False)
+    identifier = serializers.ReadOnlyField(source='station.identifier')
+    station = OwnedWxStations(many=False)
 
     class Meta:
         model = WeatherData
-        fields = ('station', 'station_identifier', 'owner', 'temperature', 'dewpoint', 'temp_uom',
-                  'wind_speed', 'wind_gust', 'wind_uom', 'wind_dir', 'dir_uom')
+        fields = ('station', 'owner', 'identifier', 'temperature', 'dewpoint', 'temp_uom',
+                  'wind_speed', 'wind_gust', 'wind_uom', 'wind_dir', 'dir_uom', 'timestamp')
 
