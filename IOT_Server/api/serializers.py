@@ -4,7 +4,6 @@
 #--- Email: Conrade@RedCatMfg.com
 
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 from api.models import Devices, Tags, ValueTypes, IotData
 from api.models import WeatherStations, WeatherData
 from distutils.util import strtobool

@@ -8,12 +8,7 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.authentication import TokenAuthentication
-#removefrom rest_framework.authtoken.models import Token
-#removefrom rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.permissions import IsAuthenticated
-#removefrom rest_framework import parsers, renderers
-#removefrom rest_framework.compat import coreapi, coreschema
-#removefrom rest_framework.schemas import ManualSchema
 from rest_framework import generics
 from rest_framework.views import APIView
 from django.views.generic import View
@@ -98,8 +93,6 @@ class DeviceTagList(generics.ListAPIView):
     serializer_class = DeviceTagSerializer
     
     def get_queryset(self):
-        #Devices owned by request user
-        #queryset = Devices.objects.filter(owner=self.request.user) --handled by serializers.OwnedTags
         queryset = Devices.objects.all()
         #Device if given in url
         device = self.kwargs.get('device_id', None)
@@ -258,7 +251,7 @@ class TagDataList(generics.ListAPIView):
 
 class TagDataCurrent(generics.ListAPIView):
     """
-    get: Returns the latest value for a given tag
+    get: Returns the most recent record for a given tag
     """
     serializer_class = TagDataSerializer
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
@@ -415,7 +408,7 @@ class WxDataList(generics.ListAPIView):
 
 class WxDataCurrent(generics.ListAPIView):
     """
-    get: Returns the latest value for a given station id.
+    get: Returns the most recent record for a given station id.
     """
     serializer_class = WxDataSerializer
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
