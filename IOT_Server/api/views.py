@@ -77,7 +77,7 @@ class TagList(generics.ListAPIView):
 class TagCreate(generics.CreateAPIView):
     """
     post:
-    Creates a new device that belongs to you.
+    Creates a new tag that belongs to you.
     """
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
