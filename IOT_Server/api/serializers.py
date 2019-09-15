@@ -145,13 +145,22 @@ class WxStationSerializer(serializers.ModelSerializer):
         model = WeatherStations
         fields = ('identifier', 'owner', 'name', 'description', 'type')
 
-    # Validate station identifier is unique for owner
     def validate(self, data):
         user = self.context['request'].user
-        queryset = WeatherStations.objects.filter(owner=user, identifier=data['identifier'])
-        if queryset:
-            msg = f"Identifier {data['identifier']} already exists."
-            raise serializers.ValidationError(msg)
+        queryset = WeatherStations.objects.filter(owner=user)
+        # Validate station identifier is unique for owner
+        if self.context['request'].method == 'POST':
+            queryset = WeatherStations.objects.filter(owner=user, identifier=data['identifier'])
+            if queryset:
+                msg = f"Identifier {data['identifier']} already exists."
+                raise serializers.ValidationError(msg)
+        # For PUT & PATCH check payload identifier matches endpoint identifier
+        elif self.context['request'].method in ['PATCH','PUT'] and 'identifier' in data:
+            #get station identifier from end of request url
+            req_ident = self.context['request'].path.strip('/').split('/')[-1]
+            if data['identifier'] != req_ident:
+                msg = f"Identifier in payload ({data['identifier']}) does not match identifier given in URL ({req_ident})."
+                raise serializers.ValidationError(msg)
         return data
 
 
@@ -167,7 +176,7 @@ class WxDataSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     identifier = serializers.ReadOnlyField(source='station.identifier')
     station = OwnedWxStations(many=False)
-
+    
     class Meta:
         model = WeatherData
         fields = ('station', 'owner', 'identifier', 'temperature', 'dewpoint', 'temp_uom',

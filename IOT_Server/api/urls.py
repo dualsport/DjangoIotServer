@@ -27,8 +27,8 @@ urlpatterns_include = [
     path('weatherstation/edit/<identifier>/', views.WxStationDetail.as_view()),
     path('weatherstation/list/', views.WxStationList.as_view()),
     path('weatherdata/add/', views.WxDataCreate.as_view()),
-    path('weatherdata/list/<station>/', views.WxDataList.as_view()),
-    path('weatherdata/current/<station>/', views.WxDataCurrent.as_view()),
+    path('weatherdata/list/<identifier>/', views.WxDataList.as_view()),
+    path('weatherdata/current/<identifier>/', views.WxDataCurrent.as_view()),
     path('token/', ObtainAuthToken.as_view()),
     ]
 

@@ -337,6 +337,8 @@ class WxDataCreate(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = WxDataSerializer
 
+    lookup_field = 'station__identifier'
+
 
 class WxDataList(generics.ListAPIView):
     """
@@ -373,9 +375,9 @@ class WxDataList(generics.ListAPIView):
         queryset = WeatherData.objects.filter(station__owner=self.request.user)
 
         #Filter on station
-        req_station = self.kwargs.get('station', None)
-        if req_station:
-            queryset = queryset.filter(station=req_station)
+        req_identifier = self.kwargs.get('identifier', None)
+        if req_identifier:
+            queryset = queryset.filter(station__identifier=req_identifier)
 
         #Filter on begin or after if given
         begin = self.request.query_params.get('begin', None)
@@ -419,9 +421,9 @@ class WxDataCurrent(generics.ListAPIView):
         queryset = WeatherData.objects.filter(station__owner=self.request.user)
 
         #Filter on station
-        req_station = self.kwargs.get('station', None)
-        if req_station:
-            queryset = queryset.filter(station=req_station)
+        req_identifier = self.kwargs.get('identifier', None)
+        if req_identifier:
+            queryset = queryset.filter(station__identifier=req_identifier)
         else:
             #return the last record of all owned tags
             #could throw a ValidationError here
