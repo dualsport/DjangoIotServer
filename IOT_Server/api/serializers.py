@@ -7,6 +7,7 @@ from rest_framework import serializers
 from api.models import Devices, Tags, ValueTypes, IotData
 from api.models import WeatherStations, WeatherData
 from distutils.util import strtobool
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class DeviceSerializer(serializers.ModelSerializer):
@@ -175,10 +176,47 @@ class OwnedWxStations(serializers.PrimaryKeyRelatedField):
 class WxDataSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     identifier = serializers.ReadOnlyField(source='station.identifier')
-    station = OwnedWxStations(many=False)
+    #station = serializers.HiddenField(default=WeatherStations.objects.get(identifier='KFCM'))
+    #station = OwnedWxStations(read_only=True, many=False)
     
     class Meta:
         model = WeatherData
-        fields = ('station', 'owner', 'identifier', 'temperature', 'dewpoint', 'temp_uom',
+        fields = ('identifier', 'owner', 'temperature', 'dewpoint', 'temp_uom',
+                  'wind_speed', 'wind_gust', 'wind_uom', 'wind_dir', 'dir_uom', 'timestamp')
+    
+    def create(self, validated_data):
+        #ident = validated_data.pop('identifier')
+        wx_record = super().create(validated_data)
+        station = WeatherStations.objects.get(identifier='KFCM')
+        wx_record.station.add(station)
+        return wx_record
+        #return WeatherData.objects.create(**validated_data)
+
+
+class WxDataCreateSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    identifier = serializers.ReadOnlyField(source='station.identifier')
+
+    class Meta:
+        model = WeatherData
+        fields = ('identifier', 'owner', 'temperature', 'dewpoint', 'temp_uom',
                   'wind_speed', 'wind_gust', 'wind_uom', 'wind_dir', 'dir_uom', 'timestamp')
 
+    def to_internal_value(self, data):
+        values = super().to_internal_value(data)
+
+        user = self.context['request'].user
+        ident = data['identifier']
+
+        #Get station from identifier given
+        try:
+            station = WeatherStations.objects.get(owner=user, identifier=ident)
+        except ObjectDoesNotExist:
+            msg = 'Identifier does not exist.'
+            raise serializers.ValidationError({ident: msg})
+
+        values['station'] = station
+        return values
+
+    def create(self, validated_data):
+        return WeatherData.objects.create(**validated_data)

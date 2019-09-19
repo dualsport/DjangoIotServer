@@ -17,7 +17,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from api.models import Devices, Tags, ValueTypes, IotData
 from api.models import WeatherStations, WeatherData
 from api.serializers import DeviceSerializer, TagSerializer, TagDataSerializer, ValTypeSerializer, DeviceTagSerializer
-from api.serializers import WxStationSerializer, WxDataSerializer
+from api.serializers import WxStationSerializer, WxDataSerializer, WxDataCreateSerializer
 from api.permissions import IsOwner, IsSuperUser, GetOnlyUnlessIsStaff
 
 
@@ -335,9 +335,15 @@ class WxDataCreate(generics.CreateAPIView):
     """
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
-    serializer_class = WxDataSerializer
+    #serializer_class = WxDataCreateSerializer
 
-    lookup_field = 'station__identifier'
+    def post(self, request, format=None):
+        serializer = WxDataCreateSerializer(data=request.data, context={'request': request})
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class WxDataList(generics.ListAPIView):
