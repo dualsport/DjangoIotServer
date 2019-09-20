@@ -65,12 +65,12 @@ class OwnedTags(serializers.PrimaryKeyRelatedField):
 class TagDataSerializer(serializers.ModelSerializer):
     value = serializers.CharField(max_length=100)
     type = serializers.ReadOnlyField(source='tag.value_type.type')
-    owner = serializers.ReadOnlyField(source='owner.username')
+    #owner = serializers.ReadOnlyField(source='owner.username')
     tag = OwnedTags(many=False)
 
     class Meta:
         model = IotData
-        fields = ('tag','owner','type','value','timestamp')
+        fields = ('tag','type','value','timestamp')
 
     def to_internal_value(self, data):
         values = super().to_internal_value(data)
@@ -165,41 +165,23 @@ class WxStationSerializer(serializers.ModelSerializer):
         return data
 
 
-class OwnedWxStations(serializers.PrimaryKeyRelatedField):
-    #Limit Weather Station list to those owned by request.user
-    def get_queryset(self):
-        user = self.context['request'].user
-        queryset = WeatherStations.objects.filter(owner=user)
-        return queryset
-
-
 class WxDataSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
+    #owner = serializers.ReadOnlyField(source='owner.username')
     identifier = serializers.ReadOnlyField(source='station.identifier')
-    #station = serializers.HiddenField(default=WeatherStations.objects.get(identifier='KFCM'))
-    #station = OwnedWxStations(read_only=True, many=False)
     
     class Meta:
         model = WeatherData
-        fields = ('identifier', 'owner', 'temperature', 'dewpoint', 'temp_uom',
+        fields = ('identifier', 'temperature', 'dewpoint', 'temp_uom',
                   'wind_speed', 'wind_gust', 'wind_uom', 'wind_dir', 'dir_uom', 'timestamp')
-    
-    def create(self, validated_data):
-        #ident = validated_data.pop('identifier')
-        wx_record = super().create(validated_data)
-        station = WeatherStations.objects.get(identifier='KFCM')
-        wx_record.station.add(station)
-        return wx_record
-        #return WeatherData.objects.create(**validated_data)
 
 
 class WxDataCreateSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
-    identifier = serializers.ReadOnlyField(source='station.identifier')
+    #owner = serializers.ReadOnlyField(source='owner.username')
+    identifier = serializers.CharField(max_length=10)
 
     class Meta:
         model = WeatherData
-        fields = ('identifier', 'owner', 'temperature', 'dewpoint', 'temp_uom',
+        fields = ('identifier', 'temperature', 'dewpoint', 'temp_uom',
                   'wind_speed', 'wind_gust', 'wind_uom', 'wind_dir', 'dir_uom', 'timestamp')
 
     def to_internal_value(self, data):
@@ -213,9 +195,10 @@ class WxDataCreateSerializer(serializers.ModelSerializer):
             station = WeatherStations.objects.get(owner=user, identifier=ident)
         except ObjectDoesNotExist:
             msg = 'Identifier does not exist.'
-            raise serializers.ValidationError({ident: msg})
+            raise serializers.ValidationError({'Station identifier does not exist': ident})
 
         values['station'] = station
+        del values['identifier']
         return values
 
     def create(self, validated_data):

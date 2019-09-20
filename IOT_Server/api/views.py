@@ -172,7 +172,6 @@ class TagData(APIView):
 
     def post(self, request, format=None):
         serializer = TagDataSerializer(data=request.data, context={'request': request})
-        
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -335,11 +334,10 @@ class WxDataCreate(generics.CreateAPIView):
     """
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
-    #serializer_class = WxDataCreateSerializer
+    serializer_class = WxDataCreateSerializer
 
     def post(self, request, format=None):
         serializer = WxDataCreateSerializer(data=request.data, context={'request': request})
-        
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -378,12 +376,14 @@ class WxDataList(generics.ListAPIView):
         return valid_dt
 
     def get_queryset(self):
-        queryset = WeatherData.objects.filter(station__owner=self.request.user)
-
-        #Filter on station
         req_identifier = self.kwargs.get('identifier', None)
-        if req_identifier:
-            queryset = queryset.filter(station__identifier=req_identifier)
+        station_exists = WeatherStations.objects.filter(owner=self.request.user,
+                                                        identifier=req_identifier).count()
+        if not station_exists:
+             raise serializers.ValidationError({'Station identifier does not exist': req_identifier})
+
+        queryset = WeatherData.objects.filter(station__owner=self.request.user,
+                                              station__identifier=req_identifier)
 
         #Filter on begin or after if given
         begin = self.request.query_params.get('begin', None)
@@ -423,18 +423,15 @@ class WxDataCurrent(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        #All IotData owned by request user
-        queryset = WeatherData.objects.filter(station__owner=self.request.user)
-
-        #Filter on station
         req_identifier = self.kwargs.get('identifier', None)
-        if req_identifier:
-            queryset = queryset.filter(station__identifier=req_identifier)
-        else:
-            #return the last record of all owned tags
-            #could throw a ValidationError here
-            pass
-        #return last record
+        station_exists = WeatherStations.objects.filter(owner=self.request.user,
+                                                        identifier=req_identifier).count()
+        if not station_exists:
+             raise serializers.ValidationError({'Station identifier does not exist': req_identifier})
+
+        queryset = WeatherData.objects.filter(station__owner=self.request.user,
+                                              station__identifier=req_identifier)
+
         queryset = queryset.order_by('-timestamp')[:1]
 
         return queryset
