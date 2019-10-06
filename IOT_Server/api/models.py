@@ -97,3 +97,42 @@ class IotData(models.Model):
     @property
     def owner(self):
         return self.tag.device.owner
+
+
+class WeatherStations(models.Model):
+    identifier = models.CharField(max_length=10)
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=50, blank=True)
+    type = models.CharField(max_length=50, blank=True)
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.identifier + " - " + self.name
+
+    class Meta:
+        verbose_name = 'WeatherStation'
+        verbose_name_plural = 'WeatherStations'
+
+
+class WeatherData(models.Model):
+    station = models.ForeignKey(WeatherStations, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(default=timezone.now)
+    temperature = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null = True)
+    dewpoint = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null = True)
+    temp_uom = models.CharField(max_length=10, blank=True)
+    wind_speed = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null = True)
+    wind_gust = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null = True)
+    wind_uom = models.CharField(max_length=10, blank=True)
+    wind_dir = models.IntegerField(blank=True, null = True)
+    dir_uom = models.CharField(max_length=10, blank=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def owner(self):
+        return self.station.owner
+
+    @property
+    def identifier(self):
+        return self.station.identifier

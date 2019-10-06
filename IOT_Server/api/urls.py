@@ -23,6 +23,12 @@ urlpatterns_include = [
     path('data/add/', views.TagData.as_view()),
     path('data/list/<tag>/', views.TagDataList.as_view()),
     path('data/current/<tag>/', views.TagDataCurrent.as_view()),
+    path('weatherstation/add/', views.WxStationCreate.as_view()),
+    path('weatherstation/edit/<identifier>/', views.WxStationDetail.as_view()),
+    path('weatherstation/list/', views.WxStationList.as_view()),
+    path('weatherdata/add/', views.WxDataCreate.as_view()),
+    path('weatherdata/list/<identifier>/', views.WxDataList.as_view()),
+    path('weatherdata/current/<identifier>/', views.WxDataCurrent.as_view()),
     path('token/', ObtainAuthToken.as_view()),
     ]
 

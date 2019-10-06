@@ -5,7 +5,9 @@
 
 from rest_framework import serializers
 from api.models import Devices, Tags, ValueTypes, IotData
+from api.models import WeatherStations, WeatherData
 from distutils.util import strtobool
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class DeviceSerializer(serializers.ModelSerializer):
@@ -63,12 +65,12 @@ class OwnedTags(serializers.PrimaryKeyRelatedField):
 class TagDataSerializer(serializers.ModelSerializer):
     value = serializers.CharField(max_length=100)
     type = serializers.ReadOnlyField(source='tag.value_type.type')
-    owner = serializers.ReadOnlyField(source='owner.username')
+    #owner = serializers.ReadOnlyField(source='owner.username')
     tag = OwnedTags(many=False)
 
     class Meta:
         model = IotData
-        fields = ('tag','owner','type','value','timestamp')
+        fields = ('tag','type','value','timestamp')
 
     def to_internal_value(self, data):
         values = super().to_internal_value(data)
@@ -137,3 +139,67 @@ class TagDataSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return IotData.objects.create(**validated_data)
 
+
+class WxStationSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    class Meta:
+        model = WeatherStations
+        fields = ('identifier', 'owner', 'name', 'description', 'type')
+
+    def validate(self, data):
+        user = self.context['request'].user
+        queryset = WeatherStations.objects.filter(owner=user)
+        # Validate station identifier is unique for owner
+        if self.context['request'].method == 'POST':
+            queryset = WeatherStations.objects.filter(owner=user, identifier=data['identifier'])
+            if queryset:
+                msg = f"Identifier {data['identifier']} already exists."
+                raise serializers.ValidationError(msg)
+        # For PUT & PATCH check payload identifier matches endpoint identifier
+        elif self.context['request'].method in ['PATCH','PUT'] and 'identifier' in data:
+            #get station identifier from end of request url
+            req_ident = self.context['request'].path.strip('/').split('/')[-1]
+            if data['identifier'] != req_ident:
+                msg = f"Identifier in payload ({data['identifier']}) does not match identifier given in URL ({req_ident})."
+                raise serializers.ValidationError(msg)
+        return data
+
+
+class WxDataSerializer(serializers.ModelSerializer):
+    #owner = serializers.ReadOnlyField(source='owner.username')
+    identifier = serializers.ReadOnlyField(source='station.identifier')
+    
+    class Meta:
+        model = WeatherData
+        fields = ('identifier', 'temperature', 'dewpoint', 'temp_uom',
+                  'wind_speed', 'wind_gust', 'wind_uom', 'wind_dir', 'dir_uom', 'timestamp')
+
+
+class WxDataCreateSerializer(serializers.ModelSerializer):
+    #owner = serializers.ReadOnlyField(source='owner.username')
+    identifier = serializers.CharField(max_length=10)
+
+    class Meta:
+        model = WeatherData
+        fields = ('identifier', 'temperature', 'dewpoint', 'temp_uom',
+                  'wind_speed', 'wind_gust', 'wind_uom', 'wind_dir', 'dir_uom', 'timestamp')
+
+    def to_internal_value(self, data):
+        values = super().to_internal_value(data)
+
+        user = self.context['request'].user
+        ident = data['identifier']
+
+        #Get station from identifier given
+        try:
+            station = WeatherStations.objects.get(owner=user, identifier=ident)
+        except ObjectDoesNotExist:
+            msg = 'Identifier does not exist.'
+            raise serializers.ValidationError({'Station identifier does not exist': ident})
+
+        values['station'] = station
+        del values['identifier']
+        return values
+
+    def create(self, validated_data):
+        return WeatherData.objects.create(**validated_data)
