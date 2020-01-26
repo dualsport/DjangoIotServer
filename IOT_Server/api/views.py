@@ -64,7 +64,7 @@ class DeviceDetail(generics.RetrieveUpdateDestroyAPIView):
 class TagList(generics.ListAPIView):
     """
     get:
-    Returns a list of tags that belong to you.
+    Returns a list of Tags that belong to you.
     """
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -86,14 +86,14 @@ class TagCreate(generics.CreateAPIView):
 
 class DeviceTagList(generics.ListAPIView):
     """
-    get: Returns a nested representation of Devices and Tags
+    get: Returns a nested representation of Devices and Tags that belong to you.
     """
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = DeviceTagSerializer
     
     def get_queryset(self):
-        queryset = Devices.objects.all()
+        queryset = Devices.objects.filter(owner=self.request.user)
         #Device if given in url
         device = self.kwargs.get('device_id', None)
         if device:
