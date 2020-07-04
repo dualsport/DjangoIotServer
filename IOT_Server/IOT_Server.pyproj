@@ -18,11 +18,19 @@
     <Name>IOT_Server</Name>
     <RootNamespace>IOT_Server</RootNamespace>
     <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
-    <PythonRunWebServerCommandArguments>runserver</PythonRunWebServerCommandArguments>
-    <PythonDebugWebServerCommandArguments>runserver</PythonDebugWebServerCommandArguments>
+    <PythonRunWebServerCommandArguments>
+    </PythonRunWebServerCommandArguments>
+    <PythonDebugWebServerCommandArguments>
+    </PythonDebugWebServerCommandArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <WebBrowserPort>8000</WebBrowserPort>
     <SuppressPackageInstallationPrompt>True</SuppressPackageInstallationPrompt>
+    <PythonRunWebServerCommand>
+    </PythonRunWebServerCommand>
+    <PythonDebugWebServerCommand>
+    </PythonDebugWebServerCommand>
+    <PythonRunWebServerCommandType>code</PythonRunWebServerCommandType>
+    <PythonDebugWebServerCommandType>code</PythonDebugWebServerCommandType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>

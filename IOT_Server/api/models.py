@@ -100,9 +100,11 @@ class IotData(models.Model):
 
 
 class WeatherStations(models.Model):
-    identifier = models.CharField(max_length=10)
+    identifier = models.CharField(max_length=30)
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=50, blank=True)
+    latitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null = True)
+    longitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null = True)
     type = models.CharField(max_length=50, blank=True)
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     created_on = models.DateTimeField(auto_now_add=True)
@@ -127,6 +129,8 @@ class WeatherData(models.Model):
     wind_uom = models.CharField(max_length=10, blank=True)
     wind_dir = models.IntegerField(blank=True, null = True)
     dir_uom = models.CharField(max_length=10, blank=True)
+    pressure = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null = True)
+    press_uom = models.CharField(max_length=10, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
 
     @property
