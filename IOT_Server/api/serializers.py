@@ -144,7 +144,8 @@ class WxStationSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     class Meta:
         model = WeatherStations
-        fields = ('identifier', 'owner', 'name', 'description', 'type')
+        fields = ('identifier', 'owner', 'name', 'description',
+                 'latitude', 'longitude', 'type')
 
     def validate(self, data):
         user = self.context['request'].user
@@ -172,7 +173,8 @@ class WxDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeatherData
         fields = ('identifier', 'temperature', 'dewpoint', 'temp_uom',
-                  'wind_speed', 'wind_gust', 'wind_uom', 'wind_dir', 'dir_uom', 'timestamp')
+                  'wind_speed', 'wind_gust', 'wind_uom', 'wind_dir', 'dir_uom',
+                  'pressure', 'press_uom', 'timestamp')
 
 
 class WxDataCreateSerializer(serializers.ModelSerializer):
@@ -182,7 +184,8 @@ class WxDataCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeatherData
         fields = ('identifier', 'temperature', 'dewpoint', 'temp_uom',
-                  'wind_speed', 'wind_gust', 'wind_uom', 'wind_dir', 'dir_uom', 'timestamp')
+                  'wind_speed', 'wind_gust', 'wind_uom', 'wind_dir', 'dir_uom',
+                  'pressure', 'press_uom', 'timestamp')
 
     def to_internal_value(self, data):
         values = super().to_internal_value(data)
