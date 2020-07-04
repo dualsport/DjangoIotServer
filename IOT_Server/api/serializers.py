@@ -179,7 +179,7 @@ class WxDataSerializer(serializers.ModelSerializer):
 
 class WxDataCreateSerializer(serializers.ModelSerializer):
     #owner = serializers.ReadOnlyField(source='owner.username')
-    identifier = serializers.CharField(max_length=10)
+    identifier = serializers.CharField(max_length=30)
 
     class Meta:
         model = WeatherData
